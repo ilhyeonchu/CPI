@@ -68,15 +68,14 @@ public class Main {
 
     private int lex_push (char[] str, int start) {
         int end, index;
-        switch (str[index]) {
-            case '(':
-                index = start + 1;
-                end = lex_push(str, index) + 1;
-                break;
-            case ')':
-                end = start - 1;
-                break;
-            default:
+        if (str[index] == '(') {
+            index = start + 1;
+            end = lex_push(str, index) + 1;
+            break;
+        } else if (str[index] == '(') {
+            end = start - 1;
+            break;
+        } else if (str[index] >= 0 && str[index] )
 
         }
 

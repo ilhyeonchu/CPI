@@ -6,4 +6,9 @@ public class ast {
         int end;
         char[] parameter;
     }
+
+    static class expr {
+        int state;
+        char[] parameter;
+    }
 }

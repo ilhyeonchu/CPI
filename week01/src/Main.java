@@ -32,57 +32,9 @@ public class Main {
             e.printStackTrace();
         }
     }
-    // 상태 처음에는 (,), +, * 가능
-    // 각각 push, pop, add, mul
-    // 이후 상태와 같이 나머지 문자열 전달
-    public void lexer (String str) {
-        int length = str.length();
-        char [] charArray = str.toCharArray();
-        int index = 0;
-        List<token> tokens = new ArrayList<>();
 
-        while (index < length) {
-            token token = new token();
-            switch (charArray[0]) {
-                case '(':
-                    // push
-                    token.state = 0;
-
-                    tokens.add(token);
-                case ')':
-                    // pop
-                    token.state = 1;
-
-                    tokens.add(token);
-                case '+':
-                    // add
-                    token.state = 2;
-                    tokens.add(token);
-                case '*':
-                    // mul
-                    token.state = 3;
-                    tokens.add(token);
-            }
-        }
-    }
-
-    private int lex_push (char[] str, int start) {
-        int end, index;
-        if (str[index] == '(') {
-            index = start + 1;
-            end = lex_push(str, index) + 1;
-            break;
-        } else if (str[index] == '(') {
-            end = start - 1;
-            break;
-        } else if (str[index] >= 0 && str[index] )
-
-        }
-
-    }
 
     class token {
-        // state push = 0, pop = 1, add = 2, mul = 3
-        int state, start, end;
+
     }
 }

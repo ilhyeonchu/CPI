@@ -14,8 +14,9 @@ public class parser {
     public static ast.expr parsing(ast.token token) {
         ast.expr expr = new ast.expr();
         expr.state = token.state;
+        expr.
 
     }
 
-    public static 
+    public static
 }

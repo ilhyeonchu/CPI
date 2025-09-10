@@ -1,15 +1,31 @@
-public class ast {
-  // state : push = 0, pop = 1, add = 2, mul = 3
-  // parameter : <> = 0, var = 1, num = 2
-  static class token {
-    int state;
-    int start;
-    int end;
-    int parameter;
-  }
+import java.lang.Thread.State;
+import java.lang.reflect.Parameter;
 
-  static class expr {
-    int state;
-    char[] parameter;
-  }
+public class ast {
+    // state : push = 0, pop = 1, add = 2, mul = 3
+    public State {
+        PUSH,
+        POP,
+        ADD,
+        MUL
+    }
+
+    // parameter : <> = 0, var = 1, num = 2
+    public Parameter {
+        IO,
+        VAR,
+        NUM
+    }
+
+    public class token {
+        State currentState;
+        int startIndex;
+        int endIndex;
+        Parameter typeP;
+    }
+
+    static class expr {
+        int state;
+        char[] parameter;
+    }
 }

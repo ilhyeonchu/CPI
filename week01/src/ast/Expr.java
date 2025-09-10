@@ -1,6 +1,8 @@
 package ast;
 
+import java.util.List;
+
 public class Expr {
-    int state;
-    char[] parameter;
+    public List<Action> actions;
+    public String value;
 }

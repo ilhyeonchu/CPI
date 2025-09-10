@@ -1,6 +1,6 @@
 package ast;
 
-public enum State {
+public enum MainAction {
     PUSH,
     POP,
     ADD,

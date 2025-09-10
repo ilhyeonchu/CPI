@@ -1,11 +1,11 @@
 import java.util.ArrayList;
 import java.util.List;
-import ast.Token;
+import ast.*;
 
 // 상태 처음에는 (,), +, * 가능
 // 각각 push, pop, add, mul
 // 이후 상태와 같이 나머지 문자열 전달
-public class lexer {
+public class Lexer {
     public static List<Token> lexer(String str) {
         int length = str.length();
         char [] charArray = str.toCharArray();
@@ -17,27 +17,30 @@ public class lexer {
             token.startIndex = index;
             switch (charArray[index]) {
                 case '(':   // push
-                    token.currentState = 0;
+                    token.mainAction = MainAction.PUSH;
                     token.endIndex = lex_range(charArray, index);
-
+                    token.typeP = lex_para(charArray[token.startIndex + 1]);
+                    token.value = new String(charArray, token.startIndex + 1, token.endIndex - token.startIndex + 1);
                     tokens.add(token);
                     index = token.endIndex;
                     break;
                 case ')':   // pop
-                    token.currentState = 1;
+                    token.mainAction = MainAction.POP;
                     token.endIndex = lex_range(charArray, index);
+                    token.typeP = lex_para(charArray[token.startIndex + 1]);
+                    token.value = new String(charArray, token.startIndex + 1, token.endIndex - token.startIndex + 1);
                     tokens.add(token);
+                    index = token.endIndex;
                 case '+':   // add
-                    token.currentState = State.ADD;
+                    token.mainAction = MainAction.ADD;
                     token.endIndex = index;
                     tokens.add(token);
-                    index++;
                 case '*':   // mul
-                    token.currentState = 3;
+                    token.mainAction = MainAction.MUL;
                     token.endIndex = index;
                     tokens.add(token);
-                    index++;
             }
+            index++;
         }
         return tokens;
     }

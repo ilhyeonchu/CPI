@@ -1,8 +1,9 @@
 package ast;
 
 public class Token {
-    public State currentState;
-    int startIndex;
-    int endIndex;
-    public Parameter typeP;
+    public MainAction mainAction;
+    public int startIndex;
+    public int endIndex;
+    public static Parameter parameter;
+    public String value;
 }

@@ -1,38 +1,40 @@
 import java.util.ArrayList;
 import java.util.List;
+import ast.Token;
 
 // 상태 처음에는 (,), +, * 가능
 // 각각 push, pop, add, mul
 // 이후 상태와 같이 나머지 문자열 전달
 public class lexer {
-    public static List<ast.token> lexer(String str) {
+    public static List<Token> lexer(String str) {
         int length = str.length();
         char [] charArray = str.toCharArray();
         int index = 0;
-        List<ast.token> tokens = new ArrayList<>();
+        List<Token> tokens = new ArrayList<>();
 
         while (index < length) {
-            ast.token token = new ast.token();
-            token.start = index;
+            Token token = new Token();
+            token.startIndex = index;
             switch (charArray[index]) {
                 case '(':   // push
-                    token.state = 0;
-                    token.end = lex_range(charArray, index);
+                    token.currentState = 0;
+                    token.endIndex = lex_range(charArray, index);
+
                     tokens.add(token);
-                    index = token.end;
+                    index = token.endIndex;
                     break;
                 case ')':   // pop
-                    token.state = 1;
-                    token.end = lex_range(charArray, index);
+                    token.currentState = 1;
+                    token.endIndex = lex_range(charArray, index);
                     tokens.add(token);
                 case '+':   // add
-                    token.state = 2;
-                    token.end = index;
+                    token.currentState = State.ADD;
+                    token.endIndex = index;
                     tokens.add(token);
                     index++;
                 case '*':   // mul
-                    token.state = 3;
-                    token.end = index;
+                    token.currentState = 3;
+                    token.endIndex = index;
                     tokens.add(token);
                     index++;
             }
@@ -56,8 +58,18 @@ public class lexer {
         } else if (str[index] == '<') {
             end = index + 1;
         }
-
         return end;
+    }
+
+    private  static Parameter lex_para(char ch) {
+        if (Character.isDigit(ch)) {
+            return Parameter.NUM;   // num
+        } else if (ch == '(') {
+            return Parameter.VAR;   // var
+        } else if (ch == '<') {
+            return Parameter.IO;   // IO
+        }
+        return Parameter.IO;
     }
 
 //    private int lex_pop (char[] str, int start) {

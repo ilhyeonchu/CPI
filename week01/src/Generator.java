@@ -1,5 +1,6 @@
 import ast.Action;
 import ast.Expr;
+import ast.MainAction;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,40 +37,63 @@ public class Generator {
         FileWriter writer = new FileWriter(result);
         writer.write(basic);
         for (Expr expr : exprs) {
-            for (Action action : expr.actions) {
-                switch (expr) {
-                    case Action.SCANF :
-                        writer.write("scanf(\"%u\", &input);\n");
-                        writer.write("push(input);\n");
-                    case Action.PRINTF :
-                        writer.write("output1 = pop()\n");
-                        writer.write("printf(\"%u\", output1);\n");
-                    case Action.VAR :
-                        int len = expr.value.length();
-                        if (len > 5) {
-                            writer.write("push(input);\n");
-                        } else if (len > 3) {
-
-                        } else {
-
-                        }
-                    case Action.NUM :
-
-                    case Action.RESTORE :
-
-                    case Action.PUSH :
-
-                    case Action.POP :
-
-                    case Action.ADD :
-
-                    case Action.MUL :
-
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + expr);
-                }
+            if (expr.mainaction == MainAction.POP || expr.mainaction == MainAction.PUSH) {
+                action_pp(expr);
+            } else  {
+                action_am(expr);
             }
+        }
+        writer.write("\nretrun 0;");
+        writer.close();
+    }
+
+    public static void action_pp(Expr expr) throws IOException {
+        FileWriter writer = new FileWriter("./test.c");
+        for (Action action : expr.actions) {
+            int var_order_num = 1;
+            switch (action) {
+                case Action.SCANF :
+                    writer.write("scanf(\"%u\", &input);\n");
+                case Action.PRINTF :
+                    writer.write("printf(\"%u\", output1);\n");
+                case Action.VAR :
+                    var_order_num = action_var(expr);
+                case Action.NUM :
+                    writer.write("input = " + expr.value + ";\n");
+                case Action.RESTORE :
+                    writer.write("var" + var_order_num + "output1;\n");
+                case Action.PUSH :
+                    writer.write("push(input);\n");
+                case Action.POP :
+                    writer.write("output1 = pop();\n");
+                default:
+                    throw new IllegalStateException("Unexpected value: " + expr);
+            }
+        }
+    }
+
+    public static void action_am(Expr expr) throws IOException {
+        FileWriter writer = new FileWriter("./test.c");
+        String op;
+        writer.write("output1 = pop();\n");
+        writer.write("output2 = pop();\n");
+        if (expr.mainaction == MainAction.ADD) {
+            op = "+";
+        } else {
+            op = "*";
+        }
+        writer.write("input = output1" + op + "output2;\n");
+        writer.write("push(input);\n");
+    }
+
+    public static int action_var(Expr expr) throws IOException {
+        String val = expr.value;
+        if (Objects.equals(val, "()")) {
+            return 1;
+        } else if (Objects.equals(val, "(())")) {
+            return 2;
+        } else {
+            return 3;
         }
     }
 }

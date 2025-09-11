@@ -22,6 +22,7 @@ public class Parser {
         } else {
             expr.actions = parse_op(token.parameter, token.mainAction);
         }
+        expr.mainaction = token.mainAction;
         expr.value = token.value;
         return expr;
     }
@@ -47,6 +48,7 @@ public class Parser {
             actions.add(Action.POP);
             actions.add(Action.PRINTF);
         } else {
+            actions.add(Action.VAR);
             actions.add(Action.POP);
             actions.add(Action.RESTORE);
         }

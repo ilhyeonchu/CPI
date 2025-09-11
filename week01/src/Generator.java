@@ -11,7 +11,7 @@ import java.util.*;
 public class Generator {
     public static void generator (List<Expr> exprs) throws IOException {
 
-        String result = "./test.c";
+        String result = "week01/test.c";
         String basic = "#include <stdio.h>\n"
                 + "\n"
                 + "unsigned int stack[5];\n"
@@ -56,9 +56,8 @@ public class Generator {
                     action_am(expr, writer);
                 }
             }
-            writer.write("\n  retrun 0;\n");
+            writer.write("\n  return 0;\n");
             writer.write("}");
-            writer.close();
         }
     }
 

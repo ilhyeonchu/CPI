@@ -19,7 +19,7 @@ public class Lexer {
                 case '(':   // push
                     token.mainAction = MainAction.PUSH;
                     token.endIndex = lex_range(charArray, index);
-                    token.typeP = lex_para(charArray[token.startIndex + 1]);
+                    token.parameter = lex_para(charArray[token.startIndex + 1]);
                     token.value = new String(charArray, token.startIndex + 1, token.endIndex - token.startIndex + 1);
                     tokens.add(token);
                     index = token.endIndex;
@@ -27,7 +27,7 @@ public class Lexer {
                 case ')':   // pop
                     token.mainAction = MainAction.POP;
                     token.endIndex = lex_range(charArray, index);
-                    token.typeP = lex_para(charArray[token.startIndex + 1]);
+                    token.parameter = lex_para(charArray[token.startIndex + 1]);
                     token.value = new String(charArray, token.startIndex + 1, token.endIndex - token.startIndex + 1);
                     tokens.add(token);
                     index = token.endIndex;

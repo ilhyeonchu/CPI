@@ -2,6 +2,7 @@ import ast.Action;
 import ast.Expr;
 import ast.MainAction;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -34,6 +35,17 @@ public class Generator {
 //        } catch (IOException e) {
 //            throw new RuntimeException(e);
 //        }
+
+        File file = new File(result);
+        if (file.exists()) {
+            boolean delete = file.delete();
+            if (delete) {
+
+            } else {
+                System.out.println("failed to delete file");
+                return;
+            }
+        }
         FileWriter writer = new FileWriter(result);
         writer.write(basic);
         for (Expr expr : exprs) {

@@ -17,7 +17,7 @@ public class Main {
             while (((line = reader.readLine()) != null)) {
                 List<Token> tokens = Lexer.lexer(line);
                 List<Expr> exprs = Parser.parser(tokens);
-
+                Generator.generator(exprs);
             }
         } catch (IOException e) {
             e.printStackTrace();

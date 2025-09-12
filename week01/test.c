@@ -17,20 +17,24 @@ unsigned int pop() {
 }
   return stack[top--];
 }
-
 int main() {
   unsigned int var1, var2, var3, input, output1, output2;
 
+  input = 1;
+  push(input);
+  input = 2;
+  push(input);
+  output1 = pop();
+  var1 = output1;
   scanf("%u", &input);
   push(input);
   output1 = pop();
   var2 = output1;
-  input = 24;
+  scanf("%u", &input);
   push(input);
-  push(var2);
   output1 = pop();
   output2 = pop();
-  input = output1*output2;
+  input = output1+output2;
   push(input);
   output1 = pop();
   printf("%u\n", output1);

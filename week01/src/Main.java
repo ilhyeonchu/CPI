@@ -12,10 +12,10 @@ public class Main {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            while (((line = reader.readLine()) != null)) {
+            while (((line = reader.readLine()) != null)) {  // 여러줄이 아니라 필요없는듯?
                 List<Token> tokens = Lexer.lexer(line);
-                List<Expr> exprs = Parser.parser(tokens);
-                Generator.generator(exprs);
+                List<Block> blocks = Parser.parser(tokens);
+                Generator.generator(blocks);
             }
         } catch (IOException e) {
             e.printStackTrace();

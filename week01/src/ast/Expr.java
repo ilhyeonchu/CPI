@@ -1,9 +1,13 @@
 package ast;
 
-import java.util.List;
-
-public class Expr {
-    public List<Action> actions;
-    public String value;
-    public MainAction mainaction;
+public enum Expr {
+    SCANF,
+    PRINTF,
+    VAR,
+    NUM,
+    RESTORE,
+    PUSH,
+    POP,
+    ADD,
+    MUL
 }

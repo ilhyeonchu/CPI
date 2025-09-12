@@ -55,7 +55,7 @@ public class Lexer {
         if (str[index] == '(') {
             end = lex_range(str, index) + 1;
         } else if (str[index] == ')') {
-            end = start - 1;
+            end = start;
         } else if (Character.isDigit(str[index]) ) {
             while (Character.isDigit(str[index])) {
                 index++;

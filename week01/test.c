@@ -18,18 +18,33 @@ unsigned int pop() {
   return stack[top--];
 }
 int main() {
-  unsigned var1, var2, var3, input, output1, output2;
+  unsigned int var1, var2, var3, input, output1, output2;
 
-  input = 3;
-  push(input);
   scanf("%u", &input);
   push(input);
+  output1 = pop();
+  var1 = output1;
+  scanf("%u", &input);
+  push(input);
+  output1 = pop();
+  var2 = output1;
+  scanf("%u", &input);
+  push(input);
+  output1 = pop();
+  var3 = output1;
+  push(var1);
+  push(var2);
   output1 = pop();
   output2 = pop();
   input = output1+output2;
   push(input);
+  push(var3);
   output1 = pop();
-  printf("%u", output1);
+  output2 = pop();
+  input = output1*output2;
+  push(input);
+  output1 = pop();
+  printf("%u\n", output1);
 
   return 0;
 }

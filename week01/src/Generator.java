@@ -11,7 +11,7 @@ import java.util.*;
 public class Generator {
     public static void generator(List<Expr> exprs) throws IOException {
 
-        String result = "week01/src/test.c";
+        String result = "./test.c";
         String basic = "#include <stdio.h>\n"
                 + "\n"
                 + "unsigned int stack[5];\n"
@@ -28,7 +28,7 @@ public class Generator {
                 + "    return 0;\n}\n"
                 + "  return stack[top--];\n}\n"
                 + "int main() {\n"
-                + "  unsigned var1, var2, var3, input, output1, output2;\n\n";
+                + "  unsigned int var1, var2, var3, input, output1, output2;\n\n";
         // + " unsigned st0, st1, st2, st3, st4;\n";
 
         // try (FileWriter writer = new FileWriter(result)) {
@@ -62,14 +62,14 @@ public class Generator {
     }
 
     public static void action_pp(Expr expr, BufferedWriter writer) throws IOException {
+        int var_order_num = 0;
         for (Action action : expr.actions) {
-            int var_order_num = 1;
             switch (action) {
                 case Action.SCANF:
                     writer.write("  scanf(\"%u\", &input);\n");
                     break;
                 case Action.PRINTF:
-                    writer.write("  printf(\"%u\", output1);\n");
+                    writer.write("  printf(\"%u\\n\", output1);\n");
                     break;
                 case Action.VAR:
                     var_order_num = action_var(expr);
@@ -79,9 +79,16 @@ public class Generator {
                     break;
                 case Action.RESTORE:
                     writer.write("  var" + var_order_num + " = output1;\n");
+                    var_order_num = 0;
                     break;
                 case Action.PUSH:
-                    writer.write("  push(input);\n");
+                    if (expr.mainaction == MainAction.POP) {
+                        writer.write("  push(output1);\n");
+                    } else if (var_order_num == 0) {
+                        writer.write("  push(input);\n");
+                    } else {
+                        writer.write("  push(var" + var_order_num + ");\n");
+                    }
                     break;
                 case Action.POP:
                     writer.write("  output1 = pop();\n");

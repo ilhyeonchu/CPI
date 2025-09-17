@@ -4,25 +4,39 @@ grammar MiniC;
 //@header {
 //package generated;
 //}
+// LITERAL(숫자), IDENT(식별자? 문자), op, 예약어 등으로 되어있음
+// 각 line은 ';'으로 종료
+
+//프로그램 시작
 program	: decl+			                            {System.out.println("201802168 Rule 0");};
+
+// 프로그램은 두 종류의 decl로 이루어짐
 decl		: var_decl		                        {System.out.println("201802168 Rule 1-1");}
 		| fun_decl		                            {System.out.println("201802168 Rule 1-2");};
+// 변수 선언 형태
+// 식별자 정의, 대입, 배열로 생성
 var_decl	:  type_spec IDENT ';'                  {System.out.println("201802168 Rule 2-1");}
 		| type_spec IDENT '=' LITERAL ';'	        {System.out.println("201802168 Rule 2-2");}
 		| type_spec IDENT '[' LITERAL ']' ';'	    {System.out.println("201802168 Rule 2-3");};
+// 타입 종류?
 type_spec	: VOID                  				{System.out.println("201802168 Rule 3-1");}
 		| INT				                        {System.out.println("201802168 Rule 3-2");};
+
+// 함수 선언 종류 이름 파라미터 복합문 (중괄호 안에 묶이는 코드 블록)
 fun_decl	: type_spec IDENT '(' params ')' compound_stmt {System.out.println("201802168 Rule 4");};
+// 파라미터 정의, 배열도 가능
 params		: param (',' param)*		            {System.out.println("201802168 Rule 5-1");}
 		| VOID				                        {System.out.println("201802168 Rule 5-2");}
 		|			                                {System.out.println("201802168 Rule 5-3");};
 param		: type_spec IDENT		                {System.out.println("201802168 Rule 6-1");}
 		| type_spec IDENT '[' ']'	                {System.out.println("201802168 Rule 6-2");};
+// statement 정의
 stmt		: expr_stmt			                    {System.out.println("201802168 Rule 7-1");}
 		| compound_stmt			                    {System.out.println("201802168 Rule 7-2");}
 		| if_stmt			                        {System.out.println("201802168 Rule 7-3");}
 		| while_stmt			                    {System.out.println("201802168 Rule 7-4");}
 		| return_stmt			                    {System.out.println("201802168 Rule 7-5");};
+// 표현식 정의
 expr_stmt	: expr ';'			                    {System.out.println("201802168 Rule 8");};
 while_stmt	: WHILE '(' expr ')' stmt	            {System.out.println("201802168 Rule 9");};
 compound_stmt: '{' local_decl* stmt* '}'	        {System.out.println("201802168 Rule 10");};

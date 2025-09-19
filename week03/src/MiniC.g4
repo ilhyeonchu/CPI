@@ -38,15 +38,21 @@ stmt		: expr_stmt			                    {System.out.println("201802168 Rule 7-1"
 		| return_stmt			                    {System.out.println("201802168 Rule 7-5");};
 // 표현식 정의
 expr_stmt	: expr ';'			                    {System.out.println("201802168 Rule 8");};
+// 반복문과 괄호로 묶인 경우
 while_stmt	: WHILE '(' expr ')' stmt	            {System.out.println("201802168 Rule 9");};
+// stmt 블록
 compound_stmt: '{' local_decl* stmt* '}'	        {System.out.println("201802168 Rule 10");};
+// 지역 변수 선언
 local_decl	: type_spec IDENT ';'                   {System.out.println("201802168 Rule 11-1");}
 		| type_spec IDENT '=' LITERAL ';'	        {System.out.println("201802168 Rule 11-2");}
 		| type_spec IDENT '[' LITERAL ']' ';'	    {System.out.println("201802168 Rule 11-3");};
+// 조건문
 if_stmt		: IF '(' expr ')' stmt		            {System.out.println("201802168 Rule 12-1");}
 		| IF '(' expr ')' stmt ELSE stmt 		    {System.out.println("201802168 Rule 12-2");};
+// 반환
 return_stmt	: RETURN ';'			                {System.out.println("201802168 Rule 13-1");}
 		| RETURN expr ';'				            {System.out.println("201802168 Rule 13-2");};
+// 표현식 정의
 expr	:  LITERAL				                    {System.out.println("201802168 Rule 14-1");}
 	| '(' expr ')'				                    {System.out.println("201802168 Rule 14-2");}
 	| IDENT				                            {System.out.println("201802168 Rule 14-3");}
@@ -72,6 +78,8 @@ expr	:  LITERAL				                    {System.out.println("201802168 Rule 14-1"
 	| expr OR expr				                    {System.out.println("201802168 Rule 14-23");}
 	| IDENT '=' expr			                    {System.out.println("201802168 Rule 14-24");}
 	| IDENT '[' expr ']' '=' expr		            {System.out.println("201802168 Rule 14-25");};
+
+// ...정의
 args	: expr (',' expr)*			                {System.out.println("201802168 Rule 15-1");}
 	|					                            {System.out.println("201802168 Rule 15-2");};
 

@@ -1,4 +1,4 @@
-// Generated from /Users/chu-ilhyeon/CPI/week03/src/MiniC.g4 by ANTLR 4.13.2
+// Generated from /home/ilhyeonchu/Documents/GitHub/CPI/week03/src/MiniC.g4 by ANTLR 4.13.2
 package generated;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 

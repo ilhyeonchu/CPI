@@ -1,3 +1,19 @@
+int f(int p, int q) {
+    if (p > q) {
+        return p - (q + 1);
+    }
+    else {
+        return q - (p + 1);
+    }
+}
+void main() {
+    int arr[100];
+    int i = 0;
+    while (i <= 99) {
+        arr[i] = f(arr[i], arr[i + 1]);
+        ++i;
+    }
+}
 int rule21;
 int rule22 = 11;
 int rule23[10];

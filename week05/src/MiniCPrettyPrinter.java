@@ -142,7 +142,7 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
     public void exitWhile_stmt(MiniCParser.While_stmtContext ctx) {
         String expr = getText(ctx.expr());
         String stmtText = getText(ctx.stmt());
-        boolean isBlock = stmtText.trim().startsWith("{");  // while문이 {} 형태의 여러줄인지 아니면 하나인지
+        boolean isBlock = stmtText.trim().startsWith("{");  // while문이 {} 블록인지 단일 문장인지 체크
 
         StringBuilder builder = new StringBuilder();
         builder.append("while (").append(expr).append(")");
@@ -151,8 +151,13 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
             if (stmtText.endsWith("\n")) {
                 builder.append('\n');
             }
-        } else {
-            builder.append('\n').append(stmtText);
+        } else {    // 단일 문장이므로 {}를 따로 추가해서 묶어줌
+            builder.append(" {\n")
+                    .append(indentLines(stmtText.endsWith("\n") ? stmtText : stmtText + "\n", 1))
+                    .append("}");
+            if (!stmtText.endsWith("\n")) {
+                builder.append("\n");
+            }
         }
         setText(ctx, builder.toString());
     }
@@ -173,6 +178,7 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
     }
 
     @Override
+    // 전역변수 선언과 같은가?
     public void exitLocal_decl(MiniCParser.Local_declContext ctx) {
         String literal = ctx.LITERAL() == null ? null : ctx.LITERAL().getText();
         String text = formatVarOrLocalDecl(ctx.type_spec(), ctx.IDENT().getText(), literal, ctx.getChildCount());
@@ -185,20 +191,28 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
     @Override
     public void exitIf_stmt(MiniCParser.If_stmtContext ctx) {
         String condition = getText(ctx.expr());
-        String thenPart = getText(ctx.stmt(0));
+        String thenPart = getText(ctx.stmt(0)); // if 토큰은 if else로 stmt 2개
         boolean thenIsBlock = thenPart.trim().startsWith("{");
 
         StringBuilder builder = new StringBuilder();
         builder.append("if (").append(condition).append(")");
+        // while과 동일
         if (thenIsBlock) {
             builder.append(' ').append(thenPart.trim());
             if (!thenPart.endsWith("\n")) {
                 builder.append('\n');
             }
         } else {
-            builder.append('\n').append(thenPart);
+            String thenBody = thenPart.endsWith("\n") ? thenPart : thenPart + "\n";
+            builder.append(" {\n")
+                    .append(indentLines(thenBody, 1))
+                    .append("}");
+            if (!thenPart.endsWith("\n")) {
+                builder.append('\n');
+            }
         }
 
+        // else 부분
         if (ctx.ELSE() != null) {
             String elsePart = getText(ctx.stmt(1));
             boolean elseIsBlock = elsePart.trim().startsWith("{");
@@ -212,7 +226,13 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
                     builder.append('\n');
                 }
             } else {
-                builder.append('\n').append(elsePart);
+                String elseBody = elsePart.endsWith("\n") ? elsePart : elsePart + "\n";
+                builder.append(" {\n")
+                        .append(indentLines(elseBody, 1))
+                        .append("}");
+                if (!elsePart.endsWith("\n")) {
+                    builder.append('\n');
+                }
             }
         }
 
@@ -232,29 +252,31 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
 
     @Override
     public void exitExpr(MiniCParser.ExprContext ctx) {
+        // 트리에서 자식이 몇 개인지에 따라서 가능한 토큰이 정해짐
         int childCount = ctx.getChildCount();
 
         if (childCount == 1) {
-            // 단일 토큰(expressions) 그대로 반환
+            // 단일 토큰
             setText(ctx, text(ctx.getChild(0)));
             return;
         }
 
+        // 단항 연산자
         if (childCount == 2) {
-            // 단항 연산자는 연산자와 피연산자를 붙여서 반환
             String operator = text(ctx.getChild(0));
             String operand = text(ctx.getChild(1));
             setText(ctx, operator + operand);
             return;
         }
 
+        // 이항 연산자 or 괄호 ((a + b) * c)
         if (childCount == 3) {
             String first = text(ctx.getChild(0));
             String second = text(ctx.getChild(1));
             String third = text(ctx.getChild(2));
 
             if ("(".equals(first) && ")".equals(third)) {
-                // 괄호 내부는 공백 없이 붙여서 감싼다
+                // 괄호 내부는 공백 없이 붙여서
                 setText(ctx, "(" + text(ctx.getChild(1)) + ")");
                 return;
             }
@@ -266,6 +288,7 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
             return;
         }
 
+        // 함수, 배열
         if (childCount == 4) {
             String first = text(ctx.getChild(0));
             String second = text(ctx.getChild(1));
@@ -282,6 +305,7 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
             }
         }
 
+        // 배열에 무언가 대입
         if (childCount == 6) {
             String first = text(ctx.getChild(0));
             String second = text(ctx.getChild(1));
@@ -313,10 +337,12 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
         setText(ctx, String.join(", ", items));
     }
 
+    // 노드의 text에 값 저장(자식들한테 받아온거 저장하기 위해서)
     private void setText(ParserRuleContext ctx, String text) {
         texts.put(ctx, text == null ? "" : text);
     }
 
+    // 노드의 text 값을 가져옴
     private String getText(ParserRuleContext ctx) {
         if (ctx == null) {
             return "";
@@ -325,6 +351,7 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
         return stored == null ? ctx.getText() : stored;
     }
 
+    // 자식들 순회하기
     private String joinChildren(ParserRuleContext ctx) {
         List<String> parts = new ArrayList<>();
         for (int i = 0; i < ctx.getChildCount(); i++) {
@@ -333,6 +360,7 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
         return joinParts(parts);
     }
 
+    // 문자들에서 공백이나 null 등 제거하고 ';','(',')','[',']' 등 이전 토큰을 이용해 공백 적절히 조절
     private String joinParts(List<String> rawParts) {
         List<String> parts = rawParts.stream()
                 .map(part -> part == null ? "" : part.trim())
@@ -390,14 +418,15 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
         return node.getText();
     }
 
+
     private String formatVarOrLocalDecl(MiniCParser.Type_specContext typeSpec,
                                         String identifier,
                                         String literalText,
                                         int childCount) {
         StringBuilder builder = new StringBuilder();
-        // 기본 선언 형태: 타입 + 공백 + 식별자
+        // 타입 + 공백 + 식별자
         builder.append(getText(typeSpec)).append(' ').append(identifier);
-        if (childCount == 5) {
+        if (childCount == 5) {  // 초기화, 값 변경 등의 경우
             builder.append(" = ").append(literalText);
         } else if (childCount == 6) {
             builder.append('[').append(literalText).append(']');
@@ -406,6 +435,7 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
         return builder.toString();
     }
 
+    // 들여쓰기를 몇 번 하는지 받아서 맞춰서 공백 생성
     private String indent(int level) {
         if (level <= 0) {
             return "";
@@ -416,6 +446,7 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
         return new String(chars);
     }
 
+    // joinParts에서 사용할 메서드 괄호 세미콜론 등을 붙일지 결정
     private boolean shouldAttachOpen(String previousPart) {
         if (previousPart == null || previousPart.isEmpty()) {
             return false;
@@ -431,33 +462,19 @@ public class MiniCPrettyPrinter extends MiniCBaseListener {
         if (text == null || text.isEmpty()) {
             return "";
         }
-        String indentString = indent(indentLevel);
-        // 줄마다 동일한 들여쓰기를 삽입
+
+        String indentString = indent(indentLevel);  // 들여쓰기 정도
         StringBuilder result = new StringBuilder();
         result.append(indentString);
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             result.append(c);
+            // 줄바뀌면 다시 들여쓰기 마지막 줄은 예외
             if (c == '\n' && i < text.length() - 1) {
                 result.append(indentString);
             }
         }
-        if (text.endsWith("\n")) {
-            int indentLength = indentString.length();
-            if (indentLength > 0 && result.length() >= indentLength) {
-                int start = result.length() - indentLength;
-                boolean endsWithIndent = true;
-                for (int i = 0; i < indentLength; i++) {
-                    if (result.charAt(start + i) != indentString.charAt(i)) {
-                        endsWithIndent = false;
-                        break;
-                    }
-                }
-                if (endsWithIndent) {
-                    result.setLength(start);
-                }
-            }
-        }
+
         return result.toString();
     }
 }

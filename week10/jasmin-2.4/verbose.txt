@@ -1,0 +1,111 @@
+Classfile /home/ilhyeonchu/Documents/GitHub/CPI/week10/jasmin-2.4/Main.class
+  Last modified Nov 13, 2025; size 550 bytes
+  SHA-256 checksum 7844edcc0e48c48f4feea61ab61cc70f555755bf9929e525d3e5b55faddc8404
+  Compiled from "Test.j"
+public class Main
+  minor version: 0
+  major version: 52
+  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
+  this_class: #13                         // Main
+  super_class: #7                         // java/lang/Object
+  interfaces: 0, fields: 0, methods: 3, attributes: 1
+Constant pool:
+   #1 = Utf8               ()V
+   #2 = Utf8               main
+   #3 = NameAndType        #26:#23        // println:(I)V
+   #4 = Methodref          #36.#14        // java/util/Scanner."<init>":(Ljava/io/InputStream)V
+   #5 = Utf8               java/lang/Object
+   #6 = Utf8               ()I
+   #7 = Class              #5             // java/lang/Object
+   #8 = Methodref          #36.#24        // java/util/Scanner.nextInt:()I
+   #9 = Utf8               java/lang/System
+  #10 = Utf8               Test.j
+  #11 = Class              #9             // java/lang/System
+  #12 = Utf8               (Ljava/io/InputStream)V
+  #13 = Class              #38            // Main
+  #14 = NameAndType        #27:#12        // "<init>":(Ljava/io/InputStream)V
+  #15 = Utf8               fac
+  #16 = Utf8               in
+  #17 = Utf8               nextInt
+  #18 = Utf8               ([Ljava/lang/String;)V
+  #19 = NameAndType        #27:#1         // "<init>":()V
+  #20 = Class              #40            // java/io/PrintStream
+  #21 = NameAndType        #16:#37        // in:Ljava/io/InputStream;
+  #22 = NameAndType        #15:#33        // fac:(I)I
+  #23 = Utf8               (I)V
+  #24 = NameAndType        #17:#6         // nextInt:()I
+  #25 = Utf8               SourceFile
+  #26 = Utf8               println
+  #27 = Utf8               <init>
+  #28 = Methodref          #20.#3         // java/io/PrintStream.println:(I)V
+  #29 = NameAndType        #30:#41        // out:Ljava/io/PrintStream;
+  #30 = Utf8               out
+  #31 = Methodref          #7.#19         // java/lang/Object."<init>":()V
+  #32 = Methodref          #13.#22        // Main.fac:(I)I
+  #33 = Utf8               (I)I
+  #34 = Utf8               java/util/Scanner
+  #35 = Fieldref           #11.#29        // java/lang/System.out:Ljava/io/PrintStream;
+  #36 = Class              #34            // java/util/Scanner
+  #37 = Utf8               Ljava/io/InputStream;
+  #38 = Utf8               Main
+  #39 = Utf8               Code
+  #40 = Utf8               java/io/PrintStream
+  #41 = Utf8               Ljava/io/PrintStream;
+  #42 = Fieldref           #11.#21        // java/lang/System.in:Ljava/io/InputStream;
+{
+  public Main();
+    descriptor: ()V
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #31                 // Method java/lang/Object."<init>":()V
+         4: return
+
+  public static int fac(int);
+    descriptor: (I)I
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=32, locals=32, args_size=1
+         0: iload_0
+         1: iconst_1
+         2: if_icmpne     7
+         5: iconst_1
+         6: ireturn
+         7: iload_0
+         8: ifne          13
+        11: iconst_0
+        12: ireturn
+        13: iload_0
+        14: iconst_1
+        15: isub
+        16: invokestatic  #32                 // Method fac:(I)I
+        19: iload_0
+        20: iconst_2
+        21: isub
+        22: invokestatic  #32                 // Method fac:(I)I
+        25: iadd
+        26: ireturn
+
+  public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=32, locals=32, args_size=1
+         0: new           #36                 // class java/util/Scanner
+         3: dup
+         4: getstatic     #42                 // Field java/lang/System.in:Ljava/io/InputStream;
+         7: invokespecial #4                  // Method java/util/Scanner."<init>":(Ljava/io/InputStream)V
+        10: astore_1
+        11: aload_1
+        12: invokevirtual #8                  // Method java/util/Scanner.nextInt:()I
+        15: istore_2
+        16: iload_2
+        17: invokestatic  #32                 // Method fac:(I)I
+        20: istore_3
+        21: getstatic     #35                 // Field java/lang/System.out:Ljava/io/PrintStream;
+        24: iload_3
+        25: invokevirtual #28                 // Method java/io/PrintStream.println:(I)V
+        28: return
+}
+SourceFile: "Test.j"

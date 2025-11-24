@@ -7,11 +7,13 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class MiniCto3A extends MiniCBaseListener {
+    // ir? 결과 저장
     public StringBuilder irResult = new StringBuilder();
+    // 각 노드별 생성된 값을 저장
     private final ParseTreeProperty<String> codes = new ParseTreeProperty<>();
     private final ParseTreeProperty<String> values = new ParseTreeProperty<>();
-    private final List<String> globalInits = new ArrayList<>();
 
+    // 임시 변수/레이블 번호 생성용 카운터
     private int tempCounter = 0;
     private int labelCounter = 0;
 
@@ -19,17 +21,7 @@ public class MiniCto3A extends MiniCBaseListener {
     public void exitProgram(MiniCParser.ProgramContext ctx) {
         StringBuilder builder = new StringBuilder();
 
-        if (!globalInits.isEmpty()) {
-            builder.append("function global_init() V\n");
-            for (String init : globalInits) {
-                builder.append(init);
-                if (!init.endsWith("\n")) {
-                    builder.append('\n');
-                }
-            }
-            builder.append("end function\n");
-        }
-
+        // decl들을 순서대로 이어붙이기
         for (MiniCParser.DeclContext declCtx : ctx.decl()) {
             String code = getCode(declCtx);
             if (code == null || code.isBlank()) {
@@ -49,26 +41,13 @@ public class MiniCto3A extends MiniCBaseListener {
 
     @Override
     public void exitDecl(MiniCParser.DeclContext ctx) {
+        // 각 decl이 var, fun이냐에 따라서 처리
         if (ctx.var_decl() != null) {
             setCode(ctx, getCode(ctx.var_decl()));
         } else if (ctx.fun_decl() != null) {
             setCode(ctx, getCode(ctx.fun_decl()));
         } else {
             setCode(ctx, "");
-        }
-    }
-
-    @Override
-    public void exitVar_decl(MiniCParser.Var_declContext ctx) {
-        boolean isGlobal = ctx.getParent() != null
-                && ctx.getParent().getParent() instanceof MiniCParser.ProgramContext;
-        String code = buildInitInstruction(ctx.type_spec(), ctx.IDENT().getText(), ctx.LITERAL(), ctx.getChildCount());
-
-        if (isGlobal && !code.isBlank()) {
-            globalInits.add(code);
-            setCode(ctx, "");
-        } else {
-            setCode(ctx, code);
         }
     }
 
@@ -92,15 +71,18 @@ public class MiniCto3A extends MiniCBaseListener {
     @Override
     public void exitCompound_stmt(MiniCParser.Compound_stmtContext ctx) {
         StringBuilder builder = new StringBuilder();
+        // 블록 안에서 선언들 처리
         for (MiniCParser.Local_declContext localDecl : ctx.local_decl()) {
             String code = getCode(localDecl);
             if (code != null && !code.isBlank()) {
                 builder.append(code);
+                // 개행문자
                 if (!code.endsWith("\n")) {
                     builder.append('\n');
                 }
             }
         }
+        // 블록 안 stmt처리
         for (MiniCParser.StmtContext stmtCtx : ctx.stmt()) {
             String code = getCode(stmtCtx);
             if (code != null && !code.isBlank()) {
@@ -113,6 +95,7 @@ public class MiniCto3A extends MiniCBaseListener {
         setCode(ctx, builder.toString());
     }
 
+    // 지역 변수 선언?시 값 초기화
     @Override
     public void exitLocal_decl(MiniCParser.Local_declContext ctx) {
         String code = buildInitInstruction(ctx.type_spec(), ctx.IDENT().getText(), ctx.LITERAL(), ctx.getChildCount());
@@ -150,32 +133,56 @@ public class MiniCto3A extends MiniCBaseListener {
 
     @Override
     public void exitWhile_stmt(MiniCParser.While_stmtContext ctx) {
+        // 라벨 생성(L + num)
         String startLabel = newLabel("L");
         String endLabel = newLabel("L");
 
         StringBuilder builder = new StringBuilder();
-        appendLine(builder, startLabel + ":");
-        builder.append(getCode(ctx.expr()));
-        appendLine(builder, "cjump " + getValue(ctx.expr()) + " " + endLabel);
+        appendLine(builder, startLabel + ":"); // 시작 설정
+        builder.append(getCode(ctx.expr())); // 조건
+        // 조건이 거짓일 때 종료로 점프하도록 not 적용 후 cjump
+        String condValue = getValue(ctx.expr());
+        String condIsFalse = newTemp();
+        appendLine(builder, condIsFalse + " = not " + condValue);
+        appendLine(builder, "cjump " + condIsFalse + " " + endLabel);
+
+        // 참인 경우 본문 코드, 시작 지점으로 복귀
         builder.append(getCode(ctx.stmt()));
         appendLine(builder, "jump " + startLabel);
+
+        // 반복 종료
         appendLine(builder, endLabel + ":");
         setCode(ctx, builder.toString());
     }
 
     @Override
     public void exitIf_stmt(MiniCParser.If_stmtContext ctx) {
+        // else가 없는 경우는 elseLabel이 종료 라벨이기도함
+        // if else는 elseLabel과 endLabel 구별
         String elseLabel = newLabel("L");
         String endLabel = ctx.ELSE() != null ? newLabel("L") : elseLabel;
 
         StringBuilder builder = new StringBuilder();
+        // 조건 확인 코드
         builder.append(getCode(ctx.expr()));
-        appendLine(builder, "cjump " + getValue(ctx.expr()) + " " + elseLabel);
+        // 조건이 거짓인 경우 elseLabel로 점프 (not 사용)
+        String condValue = getValue(ctx.expr());
+        String condIsFalse = newTemp();
+        appendLine(builder, condIsFalse + " = not " + condValue);
+        appendLine(builder, "cjump " + condIsFalse + " " + elseLabel);
+
+        // 참인 경우 보눈
         builder.append(getCode(ctx.stmt(0)));
-        if (ctx.ELSE() != null) {
+
+        // 라벨 생성때와 마찬가지로 else 유무로 바뀜
+        if (ctx.ELSE() != null) { // else있으므로 참인경우 실행 후 점프
             appendLine(builder, "jump " + endLabel);
         }
+
+        // else(없을 경우 end라벨임) 라벨 추가
         appendLine(builder, elseLabel + ":");
+
+        // else가 있는 경우
         if (ctx.ELSE() != null) {
             builder.append(getCode(ctx.stmt(1)));
             appendLine(builder, endLabel + ":");
@@ -187,6 +194,7 @@ public class MiniCto3A extends MiniCBaseListener {
     public void exitReturn_stmt(MiniCParser.Return_stmtContext ctx) {
         StringBuilder builder = new StringBuilder();
         if (ctx.expr() != null) {
+            // 반환값이 있을 때는 값 계산 후 return <val>
             builder.append(getCode(ctx.expr()));
             appendLine(builder, "return " + getValue(ctx.expr()));
         } else {
@@ -200,6 +208,7 @@ public class MiniCto3A extends MiniCBaseListener {
         int childCount = ctx.getChildCount();
 
         if (childCount == 1) {
+            // 리터럴,식별자 그대로 사용 우변 값 전달
             String value = ctx.getChild(0).getText();
             setCode(ctx, "");
             setValue(ctx, value);
@@ -207,6 +216,7 @@ public class MiniCto3A extends MiniCBaseListener {
         }
 
         if (childCount == 2) {
+            // 단항 연산자 처리
             String opToken = ctx.getChild(0).getText();
             MiniCParser.ExprContext operandCtx = ctx.expr(0);
             String operandCode = getCode(operandCtx);
@@ -226,18 +236,21 @@ public class MiniCto3A extends MiniCBaseListener {
             return;
         }
 
+        // 이항 연산자 또는 괄호
         if (childCount == 3) {
             String first = ctx.getChild(0).getText();
             String second = ctx.getChild(1).getText();
             String third = ctx.getChild(2).getText();
 
             if ("(".equals(first) && ")".equals(third)) {
+                // 괄호는 내부 값을 그대로 전달
                 setCode(ctx, getCode(ctx.expr(0)));
                 setValue(ctx, getValue(ctx.expr(0)));
                 return;
             }
 
             if ("=".equals(second)) {
+                // 단순 대입
                 String dest = first;
                 MiniCParser.ExprContext rightCtx = ctx.expr(0);
                 StringBuilder builder = new StringBuilder();
@@ -249,6 +262,7 @@ public class MiniCto3A extends MiniCBaseListener {
                 return;
             }
 
+            // 이항 연산자인 경우
             MiniCParser.ExprContext leftCtx = ctx.expr(0);
             MiniCParser.ExprContext rightCtx = ctx.expr(1);
             String leftCode = getCode(leftCtx);
@@ -272,6 +286,7 @@ public class MiniCto3A extends MiniCBaseListener {
             String fourth = ctx.getChild(3).getText();
 
             if ("(".equals(second) && ")".equals(fourth)) {
+                // 함수 호출
                 MiniCParser.ArgsContext argsCtx = ctx.args();
                 List<String> argValues = new ArrayList<>();
                 StringBuilder builder = new StringBuilder();
@@ -289,39 +304,40 @@ public class MiniCto3A extends MiniCBaseListener {
                 setValue(ctx, dest);
                 return;
             }
-
-            if ("[".equals(second)) {
-                MiniCParser.ExprContext indexCtx = ctx.expr(0);
-                StringBuilder builder = new StringBuilder();
-                builder.append(getCode(indexCtx));
-                String dest = first + "_" + getValue(indexCtx);
-                setCode(ctx, builder.toString());
-                setValue(ctx, dest);
-                return;
-            }
+            // 배열은 과제x
+            // if ("[".equals(second)) {
+            // MiniCParser.ExprContext indexCtx = ctx.expr(0);
+            // StringBuilder builder = new StringBuilder();
+            // builder.append(getCode(indexCtx));
+            // String dest = first + "_" + getValue(indexCtx);
+            // setCode(ctx, builder.toString());
+            // setValue(ctx, dest);
+            // return;
+            // }
         }
 
-        if (childCount == 6) {
-            String first = ctx.getChild(0).getText();
-            String second = ctx.getChild(1).getText();
-            String fifth = ctx.getChild(4).getText();
-
-            if ("[".equals(second) && "=".equals(fifth)) {
-                MiniCParser.ExprContext indexCtx = ctx.expr(0);
-                MiniCParser.ExprContext valueCtx = ctx.expr(1);
-
-                StringBuilder builder = new StringBuilder();
-                builder.append(getCode(indexCtx));
-                builder.append(getCode(valueCtx));
-
-                String target = first + "_" + getValue(indexCtx);
-                appendLine(builder, target + " = " + getValue(valueCtx));
-
-                setCode(ctx, builder.toString());
-                setValue(ctx, target);
-                return;
-            }
-        }
+        // 배열은 과제x
+        // if (childCount == 6) {
+        // String first = ctx.getChild(0).getText();
+        // String second = ctx.getChild(1).getText();
+        // String fifth = ctx.getChild(4).getText();
+        //
+        // if ("[".equals(second) && "=".equals(fifth)) {
+        // MiniCParser.ExprContext indexCtx = ctx.expr(0);
+        // MiniCParser.ExprContext valueCtx = ctx.expr(1);
+        //
+        // StringBuilder builder = new StringBuilder();
+        // builder.append(getCode(indexCtx));
+        // builder.append(getCode(valueCtx));
+        //
+        // String target = first + "_" + getValue(indexCtx);
+        // appendLine(builder, target + " = " + getValue(valueCtx));
+        //
+        // setCode(ctx, builder.toString());
+        // setValue(ctx, target);
+        // return;
+        // }
+        // }
 
         setCode(ctx, "");
         setValue(ctx, ctx.getText());
@@ -364,9 +380,9 @@ public class MiniCto3A extends MiniCBaseListener {
     }
 
     private String buildInitInstruction(MiniCParser.Type_specContext typeSpec,
-                                        String identifier,
-                                        TerminalNode literal,
-                                        int childCount) {
+            String identifier,
+            TerminalNode literal,
+            int childCount) {
         if (childCount == 5 && literal != null) {
             return identifier + " = " + literal.getText() + "\n";
         }
@@ -381,6 +397,7 @@ public class MiniCto3A extends MiniCBaseListener {
         return "t" + tempCounter++;
     }
 
+    // labelCounter를 이용해 중복되지 않는 Label 생성
     private String newLabel(String prefix) {
         return prefix + labelCounter++;
     }

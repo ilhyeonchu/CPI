@@ -1,0 +1,15 @@
+function fac(I) I
+t0 = x leq 1
+t1 = not t0
+cjump t1 L0
+return 1
+L0:
+t2 = i sub 1
+t3 = call fac(t2)
+t4 = t3 mul i
+return t4
+end function
+function main() V
+x = 3
+t5 = call fac(x)
+end function

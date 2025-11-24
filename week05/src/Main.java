@@ -14,7 +14,7 @@ public class Main {
         ParseTree tree = parser.program();
 
         ParseTreeWalker walker = new ParseTreeWalker();
-        MiniCto3A threeAddress = new MiniCto3A();
+        MiniC2IR threeAddress = new MiniC2IR();
         walker.walk(threeAddress, tree);
 
         Path outputPath = Path.of("./output.ir");

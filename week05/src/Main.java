@@ -14,15 +14,13 @@ public class Main {
         ParseTree tree = parser.program();
 
         ParseTreeWalker walker = new ParseTreeWalker();
-        // MiniCUglyPrinter uglyPrinter = new MiniCUglyPrinter();
-        // walker.walk(uglyPrinter, tree);
-        MiniCPrettyPrinter prettyPrinter = new MiniCPrettyPrinter();
-        walker.walk(prettyPrinter, tree);
+        MiniCto3A threeAddress = new MiniCto3A();
+        walker.walk(threeAddress, tree);
 
-        Path outputPath = Path.of("./output.mc");
+        Path outputPath = Path.of("./output.ir");
         Files.writeString(
                 outputPath,
-                prettyPrinter.prettyResult.toString(),
+                threeAddress.irResult.toString(),
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING,
                 StandardOpenOption.WRITE

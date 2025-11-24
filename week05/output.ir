@@ -1,0 +1,76 @@
+function global_init() V
+rule22 = 11
+end function
+function f(I I) I
+t0 = p gt q
+cjump t0 L0
+t1 = q add 1
+t2 = p sub t1
+return t2
+jump L1
+L0:
+t3 = p add 1
+t4 = q sub t3
+return t4
+L1:
+end function
+function main() V
+i = 0
+L2:
+t5 = i leq 99
+cjump t5 L3
+t6 = i add 1
+t7 = call f(arr_i, arr_t6)
+arr_i = t7
+i = inc i
+jump L2
+L3:
+end function
+function rule12(I I) I
+
+end function
+function main() V
+rule11_2 = 2
+t8 = 11 mul rule11_2
+rule14_10 = t8
+t9 = 22 div 2
+rule14_11 = t9
+t10 = 11 mod 2
+rule14_12 = t10
+t11 = 11 mul 2
+rule14_13 = t11
+t12 = 11 sub 10
+rule14_14 = t12
+t13 = rule14_10 eq rule14_11
+cjump t13 L4
+t14 = neg rule14_11
+rule14_6 = t14
+t15 = pos rule14_11
+rule14_7 = t15
+L4:
+t16 = rule14_12 neq rule14_13
+cjump t16 L5
+rule14_14 = dec rule14_14
+rule14_8 = rule14_14
+rule14_15 = inc rule14_15
+rule14_9 = rule14_15
+jump L6
+L5:
+return
+L6:
+t17 = rule14_15 eq rule14_15
+t18 = rule14_16 neq rule14_15
+t19 = rule14_17 leq rule14_18
+t20 = rule14_17 lt rule14_18
+t21 = rule14_20 geq rule14_19
+t22 = rule14_20 gt rule14_19
+t23 = not rule14_21
+t24 = rule14_22 and rule14_22
+t25 = rule14_23 or rule14_23
+L7:
+cjump rule9 L8
+rule14_25_12 = rule14_4_1
+jump L7
+L8:
+return rule13_2
+end function

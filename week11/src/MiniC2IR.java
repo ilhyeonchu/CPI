@@ -368,15 +368,15 @@ public class MiniC2IR extends MiniCBaseListener {
     }
 
     private String buildFunctionHeader(MiniCParser.Fun_declContext ctx) {
-        List<String> paramTypes = new ArrayList<>();
+        List<String> paramsWithNames = new ArrayList<>();
         MiniCParser.ParamsContext params = ctx.params();
         if (params != null) {
             for (MiniCParser.ParamContext param : params.param()) {
-                paramTypes.add(typeCode(param.type_spec()));
+                paramsWithNames.add(typeCode(param.type_spec()) + " " + param.IDENT().getText());
             }
         }
         String returnType = typeCode(ctx.type_spec());
-        return "function " + ctx.IDENT().getText() + "(" + String.join(" ", paramTypes) + ") " + returnType;
+        return "function " + ctx.IDENT().getText() + "(" + String.join(" ", paramsWithNames) + ") " + returnType;
     }
 
     private String buildInitInstruction(MiniCParser.Type_specContext typeSpec,

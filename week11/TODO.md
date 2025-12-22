@@ -1,9 +1,9 @@
 # WEEK 13 HW MiniC 코드를 java bytecode(jasmin) 으로 변환
 ## TODO List
 - [x] MiniC 코드를 3-addr 코드로 변환 (./src/MiniC2IR.java)
-- [ ] MiniC2IR 을 확장
-- [ ] 변환된 3-addr code(./output.ir) 파일을 java bytecode  로 변환해줄 "./src/IR2Jasmin.java" 생성
-- [ ] "./src/Main.java" 를 수정해 결과물을 "./output.j" 로 저장
+- [x] MiniC2IR 을 확장
+- [x] 변환된 3-addr code(./output.ir) 파일을 java bytecode  로 변환해줄 "./src/IR2Jasmin.java" 생성
+- [x] "./src/Main.java" 를 수정해 결과물을 "./output.j" 로 저장
 - [ ] 보너스 과제 수행
 
 ## 작업별 규칙

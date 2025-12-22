@@ -1,5 +1,5 @@
-function fac(I) I
-t0 = x leq 1
+function fac(I i) I
+t0 = i leq 1
 t1 = not t0
 cjump t1 L0
 return 1
@@ -12,4 +12,5 @@ end function
 function main() V
 x = 3
 t5 = call fac(x)
+t6 = call print(t5)
 end function

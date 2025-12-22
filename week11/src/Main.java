@@ -25,5 +25,16 @@ public class Main {
                 StandardOpenOption.TRUNCATE_EXISTING,
                 StandardOpenOption.WRITE
         );
+
+        IR2Jasmin converter = new IR2Jasmin();
+        String jasmin = converter.convert(threeAddress.irResult.toString());
+        Path jasminPath = Path.of("./output.j");
+        Files.writeString(
+                jasminPath,
+                jasmin,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE
+        );
     }
 }

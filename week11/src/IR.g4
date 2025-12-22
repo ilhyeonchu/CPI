@@ -5,7 +5,7 @@ grammar IR;
 //package generated;
 //}
 program	: function+                     ;
-function :  FUNCTION_START IDENT '(' type_spec* ')' type_spec NEWLINE
+function :  FUNCTION_START IDENT '(' (type_spec IDENT)* ')' type_spec NEWLINE
             instructions
             FUNCTION_END NEWLINE                    ;
 instructions : (instruction NEWLINE)*               ;

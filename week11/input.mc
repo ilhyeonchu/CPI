@@ -1,5 +1,5 @@
 int fac(int i) {
-  if (x <= 1)
+  if (i <= 1)
     return 1;
 
   return fac(i-1) * i;
@@ -7,5 +7,5 @@ int fac(int i) {
 
 void main() {
   x = 3;
-  fac(x);
+  print(fac(x));
 }
